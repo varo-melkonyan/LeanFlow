@@ -14,7 +14,7 @@ const app = express();
 
 
 app.use(cors({
-  origin: 'http://yerevan.me',      
+  origin: 'https://yerevan.me',      
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email','x-user-role'],
   credentials: true
@@ -26,10 +26,6 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'CORS OK ✅' });
 });
 
-// Server listen
-app.listen(3000, () => {
-  console.log('Backend running on port 3000');
-});
 
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
@@ -57,7 +53,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://yerevan.me',
+    origin: 'https://yerevan.me',
     methods: ['GET', 'POST'],
     credentials: true,
     transports: ['websocket', 'polling'] 

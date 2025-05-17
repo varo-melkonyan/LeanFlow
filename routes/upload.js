@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/upload', upload.single('file'), (req, res) => {
-  const fileUrl = `http://localhost:5001/uploads/${req.file.filename}`;
+  const fileUrl = `https://leanflow.onrender.com/uploads/${req.file.filename}`;
   res.json({ url: fileUrl });
 });
 
