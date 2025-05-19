@@ -18,7 +18,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
+console.log('🚀 Server started');
 // Միջին ծրագրեր
 app.use(cors({
   origin: 'https://yerevan.me',
@@ -27,7 +27,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-
+console.log(express.json);
 // Երթուղիներ
 app.use('/api/auth', authRoutes);
 

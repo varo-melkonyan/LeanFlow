@@ -9,9 +9,10 @@ const sendActivationEmail = require('../utils/sendActivationEmail');
 router.get('/login', (req, res) => {
   res.json({ message: 'Login endpoint is active. Use POST method.' });
 });
-
+console.log('GET /login endpoint is active. Use POST method.');
 // ✅ POST login
 router.post('/login', async (req, res) => {
+  console.log('POST /login endpoint is active.');
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
