@@ -46,7 +46,6 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/auth', require('./routes/auth'));
 
 
 const server = http.createServer(app);
