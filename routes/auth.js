@@ -4,6 +4,19 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const sendActivationEmail = require('../utils/sendActivationEmail');
+const cors = require('cors');
+const app = express();
+
+
+const corsOptions = {
+  origin: 'https://yerevan.me', // Թույլատրված դոմեն
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 // ✅ GET fallback
 router.get('/login', (req, res) => {
