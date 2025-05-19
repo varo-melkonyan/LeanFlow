@@ -5,6 +5,12 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const sendActivationEmail = require('../utils/sendActivationEmail');
 
+const availableColors = [
+  '#e74c3c', '#3498db', '#2ecc71', '#f39c12',
+  '#9b59b6', '#1abc9c', '#e67e22', '#34495e',
+  '#7f8c8d', '#27ae60'
+];
+
 async function getUniqueChatColor() {
   const usedColors = await User.distinct('chatColor');
   const freeColors = availableColors.filter(c => !usedColors.includes(c));
