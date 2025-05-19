@@ -27,7 +27,6 @@ app.get('/api/test', (req, res) => {
 });
 
 
-const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const messageRoutes = require('./routes/messages');
 const commentRoutes = require('./routes/comments');
@@ -43,7 +42,6 @@ app.use('/api/groupchats', groupChatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/auth', require('./routes/auth'));
