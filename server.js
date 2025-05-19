@@ -13,13 +13,16 @@ require('dotenv').config();
 const app = express();
 
 
-app.use(cors({
-  origin: 'https://yerevan.me',      
+const corsOptions = {
+  origin: 'https://yerevan.me',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email','x-user-role'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email', 'x-user-role'],
   credentials: true
-}));
-app.options('*', cors()); 
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 
 app.use(express.json());
 app.get('/api/test', (req, res) => {
