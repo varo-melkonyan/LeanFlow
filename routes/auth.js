@@ -7,16 +7,51 @@ const sendActivationEmail = require('../utils/sendActivationEmail');
 
 async function getUniqueChatColor() {
   const usedColors = await User.distinct('chatColor');
+  const availableColors = ['#e74c3c', '#3498db', '#2ecc71', '#f1c40f', '#9b59b6'];
   const freeColors = availableColors.filter(c => !usedColors.includes(c));
-
-  if (freeColors.length === 0) {
-    return '#7f8c8d'; // fallback գույն
-  }
-
-  return freeColors[Math.floor(Math.random() * freeColors.length)];
+  return freeColors.length > 0
+    ? freeColors[Math.floor(Math.random() * freeColors.length)]
+    : '#7f8c8d'; // fallback
 }
 
+// ✅ GET /api/auth/login fallback route
+router.get('/login', (req, res) => {
+  res.json({ message: 'Login endpoint is active. Use POST method.' });
+});
 
+// ✅ POST /api/auth/login
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (!user.isActive) {
+      return res.status(403).json({ error: 'Account not activated.' });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      chatColor: user.chatColor
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// ✅ Registration & activation (unchanged)
 router.post('/register', async (req, res) => {
   try {
     const existingUsers = await User.countDocuments();
@@ -45,15 +80,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.get('/login', (req, res) => {
-  res.json({ message: 'Login endpoint is active. Use POST method.' });
-});
-
-
 router.get('/activate/:token', async (req, res) => {
   const token = req.params.token;
-  console.log('🔍 Received token:', token);
-
   const user = await User.findOne({ activationToken: token });
 
   if (!user) {
@@ -73,30 +101,21 @@ router.get('/activate/:token', async (req, res) => {
 
 router.post('/resend-activation', async (req, res) => {
   const { email } = req.body;
-
   try {
     const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (user.isActive) return res.status(400).json({ error: 'Account already active' });
 
-    if (user.isActive) {
-      return res.status(400).json({ error: 'Account is already active' });
-    }
-
-    // 👇 Նոր token գեներացնենք
     user.activationToken = crypto.randomBytes(32).toString('hex');
     await user.save();
 
     await sendActivationEmail(email, user.activationToken);
-
     res.json({ message: 'Activation email sent successfully' });
   } catch (err) {
     console.error('Resend activation error:', err.message);
     res.status(500).json({ error: 'Failed to resend activation email' });
   }
 });
-
 
 module.exports = router;
