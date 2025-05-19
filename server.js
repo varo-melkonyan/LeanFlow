@@ -122,5 +122,3 @@ mongoose.connect(MONGODB_URI, {
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err);
   });
-
-module.exports = router
