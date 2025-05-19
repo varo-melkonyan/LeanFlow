@@ -9,8 +9,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendActivationEmail = async (to, token) => {
-  const link = `https://yerevan.me/activate/${token}`;
-
+const link = `https://leanflow.onrender.com/api/auth/activate/${token}`;
   await transporter.sendMail({
     from: `"LeanFlow" <${process.env.EMAIL_USER}>`, 
     to,
