@@ -8,6 +8,10 @@ const sendActivationEmail = require('../utils/sendActivationEmail');
 console.log('auth.js loaded');
 
 // ✅ GET fallback
+router.get('/', (req, res) => {
+  console.log('GET /auth endpoint is active.');
+})
+
 router.get('/login', (req, res) => {
   console.log('GET /login endpoint is active.');
   res.json({ message: 'Login endpoint is active. Use POST method.' });
