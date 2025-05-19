@@ -4,25 +4,15 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const sendActivationEmail = require('../utils/sendActivationEmail');
-const cors = require('cors');
-const app = express();
+
 console.log('auth.js loaded');
-
-const corsOptions = {
-  origin: 'https://yerevan.me', // Թույլատրված դոմեն
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
 
 // ✅ GET fallback
 router.get('/login', (req, res) => {
+  console.log('GET /login endpoint is active.');
   res.json({ message: 'Login endpoint is active. Use POST method.' });
 });
-console.log('GET /login endpoint is active. Use POST method.');
+
 // ✅ POST login
 router.post('/login', async (req, res) => {
   console.log('POST /login endpoint is active.');
@@ -47,8 +37,5 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-// ✅ մյուս auth ռաութները թող նույնը մնան
-// register, activate, resend-activation
 
 module.exports = router;
