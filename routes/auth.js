@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const sendActivationEmail = require('../utils/sendActivationEmail');
 const cors = require('cors');
 const app = express();
-
+console.log('auth.js loaded');
 
 const corsOptions = {
   origin: 'https://yerevan.me', // Թույլատրված դոմեն
