@@ -46,7 +46,6 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/auth', require('./routes/auth'));
 
 
 const server = http.createServer(app);
@@ -125,7 +124,7 @@ mongoose.connect(MONGODB_URI, {
   .then(() => {
     console.log('✅ MongoDB connected');
 
-    const PORT = process.env.PORT || 5001;
+    const PORT = process.env.PORT || 10000;
     server.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
