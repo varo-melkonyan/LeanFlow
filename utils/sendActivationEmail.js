@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: 'Gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -9,9 +9,10 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendActivationEmail = async (to, token) => {
-  const link = `http://localhost:3000/activate/${token}`;
+  const link = `https://yerevan.me/activate/${token}`;
+
   await transporter.sendMail({
-    from: '"LeanFlow" <no-reply@leanflow.com>',
+    from: `"LeanFlow" <${process.env.EMAIL_USER}>`, 
     to,
     subject: 'Activate your account',
     html: `
