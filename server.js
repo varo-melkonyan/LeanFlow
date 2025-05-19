@@ -1,32 +1,34 @@
-// backend/server.js
-const User = require('./models/User');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const http = require('http');
 const { Server } = require('socket.io');
+const dotenv = require('dotenv');
+const User = require('./models/User');
 const ChatMessage = require('./models/ChatMessage');
-const onlineUsers = {}; 
-const socketEmailMap = {};
-require('dotenv').config();
+
+dotenv.config();
 
 const app = express();
+const onlineUsers = {};
+const socketEmailMap = {};
 
-
-app.use(cors({
-  origin: 'https://yerevan.me',      
+const corsOptions = {
+  origin: 'https://yerevan.me',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email','x-user-role'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email', 'x-user-role'],
   credentials: true
-}));
-app.options('*', cors()); 
+};
 
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
+
 app.get('/api/test', (req, res) => {
   res.json({ message: 'CORS OK ✅' });
 });
 
-
+// ⬇️ Routing
 const authRoutes = require('./routes/auth');
 const ticketRoutes = require('./routes/tickets');
 const messageRoutes = require('./routes/messages');
@@ -37,8 +39,7 @@ const groupChatRoutes = require('./routes/groupChats');
 const uploadRoutes = require('./routes/upload');
 
 app.use('/uploads', express.static('uploads'));
-app.use('/api/chat', uploadRoutes); // ⬅️ upload endpoint
-app.use('/uploads', express.static('uploads')); // ⬅️ serve uploaded files
+app.use('/api/chat', uploadRoutes);
 app.use('/api/groupchats', groupChatRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/chat', chatRoutes);
@@ -46,19 +47,19 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/messages', messageRoutes);
-app.use('/api/auth', require('./routes/auth'));
-
 
 const server = http.createServer(app);
 
+// ⬇️ Socket.io Setup
 const io = new Server(server, {
   cors: {
     origin: 'https://yerevan.me',
     methods: ['GET', 'POST'],
     credentials: true,
-    transports: ['websocket', 'polling'] 
+    transports: ['websocket', 'polling']
   }
 });
+
 app.set('io', io);
 app.set('onlineUsers', onlineUsers);
 
@@ -80,24 +81,22 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', async () => {
-  const email = socketEmailMap[socket.id];
-
-  if (email) {
-    await User.findOneAndUpdate({ email }, { isOnline: false });
-    console.log('🔌 User disconnected:', email);
-    delete socketEmailMap[socket.id];
-  }
-
-  for (const mail in onlineUsers) {
-    if (onlineUsers[mail] === socket.id) {
-      delete onlineUsers[mail];
-      break;
+    const email = socketEmailMap[socket.id];
+    if (email) {
+      await User.findOneAndUpdate({ email }, { isOnline: false });
+      console.log('🔌 User disconnected:', email);
+      delete socketEmailMap[socket.id];
     }
-  }
 
-  console.log('🔌 Socket disconnected:', socket.id);
-});
+    for (const mail in onlineUsers) {
+      if (onlineUsers[mail] === socket.id) {
+        delete onlineUsers[mail];
+        break;
+      }
+    }
 
+    console.log('🔌 Socket disconnected:', socket.id);
+  });
 
   socket.on('registerUser', (email) => {
     onlineUsers[email] = socket.id;
@@ -113,11 +112,11 @@ io.on('connection', (socket) => {
       console.error('❌ Failed to save chat message:', err);
     }
   });
-
 });
 
-
+// ⬇️ MongoDB connection + server start
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leanflow';
+
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
