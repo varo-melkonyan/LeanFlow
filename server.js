@@ -28,29 +28,20 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'CORS OK ✅' });
 });
 
-// ⬇️ Routing
-const authRoutes = require('./routes/auth');
-const ticketRoutes = require('./routes/tickets');
-const messageRoutes = require('./routes/messages');
-const commentRoutes = require('./routes/comments');
-const chatRoutes = require('./routes/chat');
-const userRoutes = require('./routes/users');
-const groupChatRoutes = require('./routes/groupChats');
-const uploadRoutes = require('./routes/upload');
-
+// 🔗 Routes
 app.use('/uploads', express.static('uploads'));
-app.use('/api/chat', uploadRoutes);
-app.use('/api/groupchats', groupChatRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/chat', chatRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/tickets', ticketRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/api/chat', require('./routes/upload'));
+app.use('/api/groupchats', require('./routes/groupChats'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/chat', require('./routes/chat'));
+app.use('/api/comments', require('./routes/comments'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/tickets', require('./routes/tickets'));
+app.use('/api/messages', require('./routes/messages'));
 
 const server = http.createServer(app);
 
-// ⬇️ Socket.io Setup
+// 🔌 Socket.io Setup
 const io = new Server(server, {
   cors: {
     origin: 'https://yerevan.me',
@@ -80,24 +71,6 @@ io.on('connection', (socket) => {
     io.to(groupId).emit('group_message', message);
   });
 
-  socket.on('disconnect', async () => {
-    const email = socketEmailMap[socket.id];
-    if (email) {
-      await User.findOneAndUpdate({ email }, { isOnline: false });
-      console.log('🔌 User disconnected:', email);
-      delete socketEmailMap[socket.id];
-    }
-
-    for (const mail in onlineUsers) {
-      if (onlineUsers[mail] === socket.id) {
-        delete onlineUsers[mail];
-        break;
-      }
-    }
-
-    console.log('🔌 Socket disconnected:', socket.id);
-  });
-
   socket.on('registerUser', (email) => {
     onlineUsers[email] = socket.id;
     console.log('📥 Registered user:', email, socket.id);
@@ -112,9 +85,26 @@ io.on('connection', (socket) => {
       console.error('❌ Failed to save chat message:', err);
     }
   });
+
+  socket.on('disconnect', async () => {
+    const email = socketEmailMap[socket.id];
+    if (email) {
+      await User.findOneAndUpdate({ email }, { isOnline: false });
+      delete socketEmailMap[socket.id];
+    }
+
+    for (const mail in onlineUsers) {
+      if (onlineUsers[mail] === socket.id) {
+        delete onlineUsers[mail];
+        break;
+      }
+    }
+
+    console.log('🔌 Socket disconnected:', socket.id);
+  });
 });
 
-// ⬇️ MongoDB connection + server start
+// 🛢️ MongoDB + Start server
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leanflow';
 
 mongoose.connect(MONGODB_URI, {
@@ -124,7 +114,7 @@ mongoose.connect(MONGODB_URI, {
   .then(() => {
     console.log('✅ MongoDB connected');
 
-    const PORT = process.env.PORT || 10000;
+    const PORT = process.env.PORT || 5001;
     server.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
