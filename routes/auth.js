@@ -49,37 +49,6 @@ router.get('/login', (req, res) => {
   res.json({ message: 'Login endpoint is active. Use POST method.' });
 });
 
-// router.post('/login', async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const user = await User.findOne({ email });
-// console.log('🔐 Logging in:', user?.email, '| isActive:', user?.isActive);
-//     if (!user) {
-//       return res.status(401).json({ error: 'Invalid credentials' });
-//     }
-
-//     if (!user.isActive) {
-//       return res.status(403).json({ error: 'Account is not activated. Please check your email.' });
-//     }
-
-//     const match = await bcrypt.compare(password, user.password);
-//     if (!match) {
-//       return res.status(401).json({ error: 'Invalid credentials' });
-//     }
-
-//     res.json({
-//       id: user._id,
-//       name: user.name,
-//       email: user.email,
-//       role: user.role,
-//       chatColor: user.chatColor
-//     });
-//   } catch (err) {
-//     console.error('Login error:', err);
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// });
-
 
 router.get('/activate/:token', async (req, res) => {
   const token = req.params.token;
