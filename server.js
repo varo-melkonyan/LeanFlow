@@ -46,6 +46,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/tickets', ticketRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/auth', require('./routes/auth'));
 
 
 const server = http.createServer(app);
@@ -115,6 +116,7 @@ io.on('connection', (socket) => {
 
 });
 
+
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/leanflow';
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
@@ -123,9 +125,9 @@ mongoose.connect(MONGODB_URI, {
   .then(() => {
     console.log('✅ MongoDB connected');
 
-    const PORT = process.env.PORT || 10000;
+    const PORT = process.env.PORT || 5001;
     server.listen(PORT, () => {
-      console.log(`🚀 Server running on https://dashboard.render.com/:${PORT}`);
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
