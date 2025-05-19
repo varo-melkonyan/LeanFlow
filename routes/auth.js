@@ -50,11 +50,11 @@ res.json({ message: 'Login endpoint is active. Use POST method.' });
 });
 
 
-router.post('/login', async (req, res) => {
+router.get('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-console.log('🔐 Logging in:', user?.email, '| isActive:', user?.isActive);
+    console.log('🔐 Logging in:', user?.email, '| isActive:', user?.isActive);
     if (!user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
