@@ -45,12 +45,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.get('/login', (req, res) => {
-res.json({ message: 'Login endpoint is active. Use POST method.' });
-});
-
-
-router.get('/login', async (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
