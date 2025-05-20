@@ -12,7 +12,7 @@ const Chats = () => {
   const [newChatEmails, setNewChatEmails] = useState('');
   const user = JSON.parse(localStorage.getItem('user'));
 
-  const socket = io('https://leanflow-backend.onrender.com', {
+  const socket = io('https://leanflow.onrender.com', {
     transports: ['polling']
   });
 
@@ -41,7 +41,7 @@ const Chats = () => {
   useEffect(() => {
     if (!user) return;
     axios
-      .get('https://leanflow-backend.onrender.com/api/groupchats', {
+      .get('https://leanflow.onrender.com/api/groupchats', {
         headers: {
           'x-user-email': user.email,
           'x-user-role': user.role
@@ -57,7 +57,7 @@ const Chats = () => {
     if (!emails.includes(user.email)) emails.push(user.email);
 
     try {
-      const res = await axios.post('https://leanflow-backend.onrender.com/api/groupchats', {
+      const res = await axios.post('https://leanflow.onrender.com/api/groupchats', {
         name: newChatName,
         participants: emails
       });
@@ -83,7 +83,7 @@ const Chats = () => {
 
     try {
       await axios.post(
-        `https://leanflow-backend.onrender.com/api/groupchats/${selectedChat._id}/message`,
+        `https://leanflow.onrender.com/api/groupchats/${selectedChat._id}/message`,
         msg
       );
 
