@@ -7,49 +7,65 @@ const Sidebar = ({ role, setUser }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
-    setUser(null); // ✅ React state թարմացում
+    setUser(null);
     navigate('/');
   };
 
   return (
-    <aside className="w-64 bg-blue-900 text-white h-full flex flex-col">
-      <div className="p-6 text-2xl font-bold border-b border-blue-800">
+    <aside className="w-64 bg-[#1e1f22] text-white h-screen flex flex-col shadow-md">
+      <div className="p-5 text-2xl font-bold border-b border-[#2c2d30]">
         <span className="text-white">Lean</span>
-        <span className="text-blue-300">Flow</span>
+        <span className="text-purple-400">Flow</span>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
-        <Link to="/dashboard" className="flex items-center gap-2 hover:text-blue-200">
+      <nav className="flex-1 p-4 space-y-2 text-sm">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3e] transition"
+        >
           <FaHome /> Dashboard
         </Link>
 
         {(role === 'admin' || role === 'support' || role === 'client') && (
-          <Link to="/chats" className="flex items-center gap-2 hover:text-blue-200">
+          <Link
+            to="/chats"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3e] transition"
+          >
             <FaComments /> Chats
           </Link>
         )}
 
-        <Link to="/tickets" className="flex items-center gap-2 hover:text-blue-200">
+        <Link
+          to="/tickets"
+          className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3e] transition"
+        >
           <FaTicketAlt /> Tickets
         </Link>
 
         {role === 'admin' && (
-          <Link to="/teams" className="flex items-center gap-2 hover:text-blue-200">
+          <Link
+            to="/teams"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3e] transition"
+          >
             <FaUsers /> Support Teams
           </Link>
         )}
+
         {(role === 'admin' || role === 'support') && (
-  <Link
-    to="/admin"
-    className="flex items-center gap-2 hover:text-blue-200"
-  >
-    🛠️ Admin Panel
-  </Link>
-)}
+          <Link
+            to="/admin"
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#3a3b3e] transition"
+          >
+            🛠️ Admin Panel
+          </Link>
+        )}
       </nav>
 
-      <div className="p-4 border-t border-blue-800 text-sm">
-        <button onClick={handleLogout} className="hover:text-red-300">
+      <div className="p-4 border-t border-[#2c2d30] text-sm">
+        <button
+          onClick={handleLogout}
+          className="hover:text-red-400 transition"
+        >
           Logout
         </button>
       </div>
