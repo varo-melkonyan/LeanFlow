@@ -14,7 +14,14 @@ const app = express();
 
 
 const corsOptions = {
-  origin: 'https://yerevan.me',
+  origin: (origin, callback) => {
+    const allowedOrigins = ['https://yerevan.me', 'https://leanflow.onrender.com'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed from this origin'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-user-email', 'x-user-role'],
   credentials: true
@@ -54,12 +61,13 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'https://yerevan.me',
+    origin: ['https://yerevan.me', 'https://leanflow.onrender.com'],
     methods: ['GET', 'POST'],
     credentials: true,
-    transports: ['websocket', 'polling'] 
+    transports: ['websocket', 'polling']
   }
 });
+
 app.set('io', io);
 app.set('onlineUsers', onlineUsers);
 
