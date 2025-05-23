@@ -21,7 +21,7 @@ const TicketSchema = new mongoose.Schema({
     }
   ]
 }, {
-  timestamps: true // ✅ սա կավելացնի createdAt և updatedAt ավտոմատ
+  timestamps: true
 });
 
 module.exports = mongoose.model('Ticket', TicketSchema);

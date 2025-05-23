@@ -68,33 +68,39 @@ router.put('/:id', async (req, res) => {
     const ticket = await Ticket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
-    const { title, description, status, assignedTo } = req.body;
+    const { title, description, status, assignedToEmail } = req.body;
 
     if (status && status !== ticket.status) {
-      ticket.history.push({
-        type: status === 'closed' ? 'complete' : 'reopen',
-        timestamp: new Date()
-      });
+      ticket.history.push({ type: status === 'closed' ? 'complete' : 'reopen' });
+      ticket.status = status;
     }
 
-    if (
-      (title && title !== ticket.title) ||
-      (description && description !== ticket.description)
-    ) {
-      ticket.history.push({
-        type: 'edit',
-        timestamp: new Date()
-      });
+    if (title && title !== ticket.title) {
+      ticket.history.push({ type: 'edit' });
+      ticket.title = title;
     }
 
-    if (title) ticket.title = title;
-    if (description) ticket.description = description;
-    if (status) ticket.status = status;
-    if (assignedTo) ticket.assignedTo = assignedTo;
+    if (description && description !== ticket.description) {
+      ticket.history.push({ type: 'edit' });
+      ticket.description = description;
+    }
 
+    if (assignedToEmail) {
+      const user = await User.findOne({ email: assignedToEmail });
+      if (user) {
+        if (!ticket.assignedTo || user._id.toString() !== ticket.assignedTo.toString()) {
+          ticket.history.push({ type: 'assigned' });
+          ticket.assignedTo = user._id;
+        }
+      } else {
+        return res.status(404).json({ error: 'Assigned user not found' });
+      }
+    }
+
+    ticket.updatedAt = new Date();
     await ticket.save();
 
-    const populatedTicket = await Ticket.findById(ticket._id)
+    const updated = await Ticket.findById(ticket._id)
       .populate('createdBy', 'name email')
       .populate('assignedTo', 'name email')
       .populate({
@@ -102,7 +108,7 @@ router.put('/:id', async (req, res) => {
         populate: { path: 'author', select: 'name email' }
       });
 
-    res.json(populatedTicket);
+    res.json(updated);
   } catch (err) {
     console.error('❌ Ticket update error:', err);
     res.status(500).json({ error: 'Update failed' });
