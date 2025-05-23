@@ -103,6 +103,42 @@ const TicketsPage = ({ role, setUser }) => {
     }
     return 0;
   });
+  const toggleComplete = async (ticket) => {
+  try {
+    await axios.put(`${apiBase}/api/tickets/${ticket._id}`, {
+      status: ticket.status === 'completed' ? 'open' : 'completed'
+    }, {
+      headers: {
+        'x-user-email': currentUser.email,
+        'x-user-role': currentUser.role
+      }
+    });
+    fetchTickets();
+  } catch (err) {
+    console.error('❌ Failed to toggle status:', err);
+    alert('Failed to update status');
+  }
+};
+const deleteTicket = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this ticket?')) return;
+  try {
+    await axios.delete(`${apiBase}/api/tickets/${id}`, {
+      headers: {
+        'x-user-email': currentUser.email,
+        'x-user-role': currentUser.role
+      }
+    });
+    fetchTickets();
+  } catch (err) {
+    console.error('❌ Failed to delete ticket:', err);
+    alert('Failed to delete');
+  }
+};
+const editTicket = (ticket) => {
+  alert('✏️ Edit ticket feature will be added soon.\nID: ' + ticket._id);
+  // Կանխատեսված է՝ բացել modal form-ով
+};
+
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -177,63 +213,96 @@ const TicketsPage = ({ role, setUser }) => {
           <p className="text-sm text-gray-500 dark:text-gray-400">No tickets found.</p>
         ) : (
           <div className="grid gap-4">
-            {sortedTickets.map((ticket) => (
-              <div
-                key={ticket._id}
-                className="p-4 rounded-lg bg-white dark:bg-gray-800 shadow"
-              >
-                <h2 className="font-semibold">{ticket.title || 'Untitled Ticket'}</h2>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
-                  Status: {ticket.status}
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  Created: {new Date(ticket.createdAt).toLocaleString()}
-                </p>
+  {sortedTickets.map((ticket) => (
+    <div
+      key={ticket._id}
+      className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow flex flex-col gap-2 border border-gray-300 dark:border-gray-700"
+    >
+      <div className="flex justify-between items-center">
+        <h2 className="font-bold text-lg">{ticket.title || 'Untitled Ticket'}</h2>
+        <span className={`px-2 py-1 rounded text-xs font-semibold 
+          ${ticket.status === 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
+          {ticket.status}
+        </span>
+      </div>
 
-                {ticket.comments?.length > 0 && (
-                  <div className="mt-4 border-t pt-2">
-                    <h3 className="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
-                      Comments:
-                    </h3>
-                    {ticket.comments.map((comment) => (
-                      <div key={comment._id} className="mb-2">
-                        <p className="text-sm">
-                          <strong>{comment.author?.name || 'Unknown'}:</strong>{' '}
-                          {comment.message}
-                        </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          {new Date(comment.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+      <p className="text-sm text-gray-600 dark:text-gray-300">{ticket.description}</p>
 
-                {role === 'client' &&
-                  ticket.assignedTo?._id === currentUser?.id && (
-                    <div className="mt-2">
-                      <textarea
-                        rows={2}
-                        placeholder="Write a comment..."
-                        value={commentingTicketId === ticket._id ? commentText : ''}
-                        onFocus={() => setCommentingTicketId(ticket._id)}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        className="w-full p-2 border rounded dark:bg-gray-900 dark:text-white"
-                      />
-                      <button
-                        className="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-                        onClick={() => submitComment(ticket._id)}
-                      >
-                        Add Comment
-                      </button>
-                    </div>
-                  )}
-              </div>
-            ))}
-          </div>
+      <div className="text-xs text-gray-500 dark:text-gray-400">
+        📤 Created by: <strong>{ticket.createdBy?.email || 'N/A'}</strong><br />
+        📥 Assigned to: <strong>{ticket.assignedTo?.email || 'Unassigned'}</strong><br />
+        🕓 Created: {new Date(ticket.createdAt).toLocaleString()}<br />
+        🔄 Updated: {new Date(ticket.updatedAt).toLocaleString()}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mt-2">
+        {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
+          <>
+            <button
+              onClick={() => toggleComplete(ticket)}
+              className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+            >
+              {ticket.status === 'completed' ? '↩️ Uncomplete' : '✅ Complete'}
+            </button>
+            <button
+              onClick={() => editTicket(ticket)}
+              className="text-xs px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+            >
+              ✏️ Edit
+            </button>
+          </>
+        )}
+        {(role === 'admin' || role === 'support') && (
+          <button
+            onClick={() => deleteTicket(ticket._id)}
+            className="text-xs px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+          >
+            🗑️ Delete
+          </button>
+        )}
+      </div>
+
+      {ticket.comments?.length > 0 && (
+        <div className="mt-4 border-t pt-2">
+          <h3 className="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
+            💬 Comments:
+          </h3>
+          {ticket.comments.map((comment) => (
+            <div key={comment._id} className="mb-2">
+              <p className="text-sm">
+                <strong>{comment.author?.name || 'Unknown'}:</strong> {comment.message}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                {new Date(comment.createdAt).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
+        <div className="mt-2">
+          <textarea
+            rows={2}
+            placeholder="Write a comment..."
+            value={commentingTicketId === ticket._id ? commentText : ''}
+            onFocus={() => setCommentingTicketId(ticket._id)}
+            onChange={(e) => setCommentText(e.target.value)}
+            className="w-full p-2 border rounded dark:bg-gray-900 dark:text-white"
+          />
+          <button
+            className="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={() => submitComment(ticket._id)}
+          >
+            💬 Add Comment
+          </button>
+        </div>
+      )}
+    </div>
+  ))}
+</div>
         )}
 
-        {/* ✅ Live Chat տեղադրված */}
         {currentUser && <ChatBox user={currentUser} />}
         
       </main>

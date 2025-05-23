@@ -62,4 +62,32 @@ router.post('/', async (req, res) => {
   }
 });
 
+// ✅ Update ticket (status, title, description)
+router.put('/:id', async (req, res) => {
+  try {
+    const { status, title, description } = req.body;
+    const update = {};
+    if (status) update.status = status;
+    if (title) update.title = title;
+    if (description) update.description = description;
+
+    const updated = await Ticket.findByIdAndUpdate(req.params.id, update, { new: true });
+    res.json(updated);
+  } catch (err) {
+    console.error('❌ Ticket update error:', err);
+    res.status(500).json({ error: 'Update failed' });
+  }
+});
+
+// ✅ Delete ticket by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    await Ticket.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error('❌ Ticket deletion error:', err);
+    res.status(500).json({ error: 'Delete failed' });
+  }
+});
+
 module.exports = router;
