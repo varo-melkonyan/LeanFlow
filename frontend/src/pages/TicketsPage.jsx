@@ -14,6 +14,17 @@ const TicketsPage = ({ role, setUser }) => {
   const [commentText, setCommentText] = useState('');
   const [commentingTicketId, setCommentingTicketId] = useState(null);
   const apiBase = 'https://leanflow.onrender.com';
+  const [editingTicket, setEditingTicket] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editAssignedEmail, setEditAssignedEmail] = useState('');
+
+  const openEditModal = (ticket) => {
+    setEditingTicket(ticket);
+    setEditTitle(ticket.title);
+    setEditDescription(ticket.description);
+    setEditAssignedEmail(ticket.assignedTo?.email || '');
+  };
 
   const fetchTickets = async () => {
     try {
@@ -134,9 +145,33 @@ const deleteTicket = async (id) => {
     alert('Failed to delete');
   }
 };
+
 const editTicket = (ticket) => {
-  alert('✏️ Edit ticket feature will be added soon.\nID: ' + ticket._id);
-  // Կանխատեսված է՝ բացել modal form-ով
+  openEditModal(ticket);
+};
+
+const handleEditSubmit = async () => {
+  if (!editTitle || !editDescription) return alert('Title and description required');
+
+  try {
+    const update = {
+      title: editTitle,
+      description: editDescription,
+      status: editingTicket.status,
+    };
+
+    if (editAssignedEmail) {
+      const res = await axios.get(`${apiBase}/api/users/by-email/${editAssignedEmail}`);
+      update.assignedTo = res.data._id;
+    }
+
+    await axios.put(`${apiBase}/api/tickets/${editingTicket._id}`, update);
+    setEditingTicket(null);
+    fetchTickets();
+  } catch (err) {
+    console.error('❌ Edit failed:', err);
+    alert('Failed to update ticket');
+  }
 };
 
 
@@ -261,6 +296,48 @@ const editTicket = (ticket) => {
           </button>
         )}
       </div>
+      {editingTicket && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg w-full max-w-md space-y-4">
+      <h2 className="text-xl font-semibold">✏️ Edit Ticket</h2>
+
+      <input
+        type="text"
+        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+        value={editTitle}
+        onChange={(e) => setEditTitle(e.target.value)}
+      />
+      <textarea
+        rows={4}
+        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+        value={editDescription}
+        onChange={(e) => setEditDescription(e.target.value)}
+      />
+      <input
+        type="email"
+        placeholder="Assign to (email)"
+        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
+        value={editAssignedEmail}
+        onChange={(e) => setEditAssignedEmail(e.target.value)}
+      />
+
+      <div className="flex justify-end gap-3 pt-2">
+        <button
+          onClick={() => setEditingTicket(null)}
+          className="text-gray-500 hover:text-red-500"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleEditSubmit}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {ticket.comments?.length > 0 && (
         <div className="mt-4 border-t pt-2">
