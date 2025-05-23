@@ -74,6 +74,7 @@ router.put('/:id', async (req, res) => {
     const originalTitle = ticket.title;
     const originalDescription = ticket.description;
 
+    // 📌 Title / Description փոփոխություն
     if (title && title !== originalTitle) {
       ticket.title = title;
       ticket.history.push({ type: 'edit' });
@@ -84,13 +85,16 @@ router.put('/:id', async (req, res) => {
       ticket.history.push({ type: 'edit' });
     }
 
+    // ✅ Status փոփոխություն
     if (status && status !== originalStatus) {
       ticket.status = status;
       ticket.history.push({
-        type: status === 'closed' ? 'complete' : 'reopen'
+        type: status === 'closed' ? 'complete' : 'reopen',
+        timestamp: new Date()
       });
     }
 
+    // 📌 Assign user if provided
     if (assignedToEmail) {
       const user = await User.findOne({ email: assignedToEmail });
       if (!user) return res.status(404).json({ error: 'Assigned user not found' });
@@ -102,12 +106,10 @@ router.put('/:id', async (req, res) => {
 
     res.json(ticket);
   } catch (err) {
-    console.error('❌ Ticket update error:', err.message, err.stack);
+    console.error('❌ Ticket update error:', err.message);
     res.status(500).json({ error: 'Update failed', details: err.message });
   }
 });
-
-
 
 // ✅ Delete ticket by ID
 router.delete('/:id', async (req, res) => {
