@@ -220,6 +220,7 @@ const Chats = () => {
                 <button
                   onClick={sendMessage}
                   className="ml-2 px-4 py-2 bg-blue-600 rounded-full hover:bg-blue-700"
+                  style={{ width: 'auto' }}
                 >
                   Send
                 </button>
