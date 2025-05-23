@@ -273,7 +273,7 @@ const handleEditSubmit = async () => {
         {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
           <>
             <button
-              onClick={() => toggleComplete(ticket)}
+              onClick={() => toggleComplete(ticket, ticket.status)}
               className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
             >
               {ticket.status === 'completed' ? '↩️ Uncomplete' : '✅ Complete'}
