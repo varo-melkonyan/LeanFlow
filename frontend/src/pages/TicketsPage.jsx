@@ -340,22 +340,43 @@ const handleEditSubmit = async () => {
 )}
 
       {ticket.comments?.length > 0 && (
-        <div className="mt-4 border-t pt-2">
-          <h3 className="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
-            💬 Comments:
-          </h3>
-          {ticket.comments.map((comment) => (
-            <div key={comment._id} className="mb-2">
-              <p className="text-sm">
-                <strong>{comment.author?.name || 'Unknown'}:</strong> {comment.message}
-              </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                {new Date(comment.createdAt).toLocaleString()}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
+  <div className="mt-4 border-t pt-2">
+    <h3 className="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
+      💬 Comments:
+    </h3>
+    {ticket.comments.map((comment) => (
+      <div key={comment._id} className="mb-4">
+        <p className="text-sm">
+          <strong>{comment.author?.name || 'Unknown'}:</strong> {comment.message}
+        </p>
+        <p className="text-xs text-gray-400 dark:text-gray-500">
+          🕓 {new Date(comment.createdAt).toLocaleString()}
+        </p>
+      </div>
+    ))}
+
+    {/* ✅ Show ticket-level updatedAt and history outside comments */}
+    {ticket.updatedAt && (
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+        🔄 Updated: {new Date(ticket.updatedAt).toLocaleString()}
+      </p>
+    )}
+
+    {ticket.history?.length > 0 && (
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+        📜 History:
+        {ticket.history.slice(-3).map((h, idx) => (
+          <span key={idx} className="ml-1">
+            {h.type === 'edit' && '✏️'}
+            {h.type === 'complete' && '✅'}
+            {h.type === 'reopen' && '♻️'} {h.type} (
+            {new Date(h.timestamp).toLocaleTimeString()})
+          </span>
+        ))}
+      </p>
+    )}
+  </div>
+)}
 
       {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
         <div className="mt-2">

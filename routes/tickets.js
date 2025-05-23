@@ -62,22 +62,53 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Update ticket (status, title, description)
+// ✅ PUT update ticket + history
 router.put('/:id', async (req, res) => {
   try {
-    const { status, title, description } = req.body;
-    const update = {};
-    if (status) update.status = status;
-    if (title) update.title = title;
-    if (description) update.description = description;
+    const ticket = await Ticket.findById(req.params.id);
+    if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
-    const updated = await Ticket.findByIdAndUpdate(req.params.id, update, { new: true });
-    res.json(updated);
+    const { title, description, status, assignedTo } = req.body;
+
+    if (status && status !== ticket.status) {
+      ticket.history.push({
+        type: status === 'closed' ? 'complete' : 'reopen',
+        timestamp: new Date()
+      });
+    }
+
+    if (
+      (title && title !== ticket.title) ||
+      (description && description !== ticket.description)
+    ) {
+      ticket.history.push({
+        type: 'edit',
+        timestamp: new Date()
+      });
+    }
+
+    if (title) ticket.title = title;
+    if (description) ticket.description = description;
+    if (status) ticket.status = status;
+    if (assignedTo) ticket.assignedTo = assignedTo;
+
+    await ticket.save();
+
+    const populatedTicket = await Ticket.findById(ticket._id)
+      .populate('createdBy', 'name email')
+      .populate('assignedTo', 'name email')
+      .populate({
+        path: 'comments',
+        populate: { path: 'author', select: 'name email' }
+      });
+
+    res.json(populatedTicket);
   } catch (err) {
     console.error('❌ Ticket update error:', err);
     res.status(500).json({ error: 'Update failed' });
   }
 });
+
 
 // ✅ Delete ticket by ID
 router.delete('/:id', async (req, res) => {
