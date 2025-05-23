@@ -11,7 +11,7 @@ const Register = () => {
   });
 
   const navigate = useNavigate();
-
+  const apiBase = 'https://leanflow.onrender.com';
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 

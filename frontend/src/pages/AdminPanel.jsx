@@ -32,7 +32,8 @@ const AdminPanel = () => {
     password: '',
     role: 'client',
   });
-
+  const apiBase = 'https://leanflow.onrender.com';
+  
   useEffect(() => {
     axios.get('https://leanflow.onrender.com/api/users')
       .then(res => {
