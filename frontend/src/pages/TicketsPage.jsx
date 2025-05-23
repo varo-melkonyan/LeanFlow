@@ -36,26 +36,32 @@ const TicketsPage = ({ role, setUser }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await await fetch(`${apiBase}/api/tickets`, {
-        title,
-        description,
-        createdBy: currentUser.id,
-        assignedToEmail: assignedEmail,
-        status: 'open',
-      });
+  e.preventDefault();
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
 
-      setTitle('');
-      setDescription('');
-      setAssignedEmail('');
-      setShowForm(false);
-      fetchTickets();
-    } catch (err) {
-      console.error('❌ Ticket creation failed:', err);
-      alert('Failed to create ticket');
-    }
-  };
+    await axios.post(`${apiBase}/api/tickets`, {
+      title,
+      description,
+      assignedToEmail,
+      status: 'open'
+    }, {
+      headers: {
+        'x-user-email': user.email,
+        'x-user-role': user.role
+      }
+    });
+
+    setTitle('');
+    setDescription('');
+    setAssignedEmail('');
+    setShowForm(false);
+    fetchTickets();
+  } catch (err) {
+    console.error('❌ Ticket creation failed:', err.response?.data || err.message);
+    alert('Failed to create ticket');
+  }
+};
 
   const submitComment = async (ticketId) => {
     try {
@@ -63,11 +69,16 @@ const TicketsPage = ({ role, setUser }) => {
 
       if (!commentText.trim()) return;
 
-      await await fetch(`${apiBase}/api/comments`, {
-        ticketId,
-        authorId: user.id,
-        message: commentText.trim(),
-      });
+      await axios.post(`${apiBase}/api/comments`, {
+  ticketId,
+  authorId: user.id,
+  message: commentText.trim()
+}, {
+  headers: {
+    'x-user-email': user.email,
+    'x-user-role': user.role
+  }
+});
 
       setCommentText('');
       setCommentingTicketId(null);

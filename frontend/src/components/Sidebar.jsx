@@ -66,7 +66,7 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className="p-4 border-t border-[#2c2d30] text-sm">
-        <div className="text-gray-300 mb-2">{user?.email}</div>
+        <div className="text-gray-300 mb-2">{user?.name}</div>
         <button
           onClick={handleLogout}
           className="text-red-400 hover:text-red-300 transition"
