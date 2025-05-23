@@ -114,15 +114,13 @@ const TicketsPage = ({ role, setUser }) => {
     }
     return 0;
   });
-  const toggleComplete = async (ticket) => {
+
+  const toggleComplete = async (ticketId, currentStatus) => {
+  const newStatus = currentStatus === 'closed' ? 'open' : 'closed';
+
   try {
-    await axios.put(`${apiBase}/api/tickets/${ticket._id}`, {
-      status: ticket.status === 'completed' ? 'open' : 'completed'
-    }, {
-      headers: {
-        'x-user-email': currentUser.email,
-        'x-user-role': currentUser.role
-      }
+    await axios.put(`${apiBase}/api/tickets/${ticketId}`, {
+      status: newStatus
     });
     fetchTickets();
   } catch (err) {
@@ -130,6 +128,7 @@ const TicketsPage = ({ role, setUser }) => {
     alert('Failed to update status');
   }
 };
+
 const deleteTicket = async (id) => {
   if (!window.confirm('Are you sure you want to delete this ticket?')) return;
   try {
