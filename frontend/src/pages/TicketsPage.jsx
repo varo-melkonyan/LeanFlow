@@ -116,7 +116,7 @@ const TicketsPage = ({ role, setUser }) => {
   });
 
   const toggleComplete = async (ticketId, currentStatus) => {
-  const newStatus = currentStatus === 'closed' ? 'open' : 'closed';
+  const newStatus = currentStatus === 'completed' ? 'open' : 'completed';
 
   try {
     await axios.put(`${apiBase}/api/tickets/${ticketId}`, {
@@ -128,6 +128,7 @@ const TicketsPage = ({ role, setUser }) => {
     alert('Failed to update status');
   }
 };
+
 
 const deleteTicket = async (id) => {
   if (!window.confirm('Are you sure you want to delete this ticket?')) return;
@@ -273,7 +274,7 @@ const handleEditSubmit = async () => {
         {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
           <>
             <button
-              onClick={() => toggleComplete(ticket, ticket.status)}
+              onClick={() => toggleComplete(ticket._id, ticket.status)}
               className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
             >
               {ticket.status === 'completed' ? '↩️ Uncomplete' : '✅ Complete'}

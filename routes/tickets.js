@@ -85,7 +85,6 @@ router.put('/:id', async (req, res) => {
       ticket.history.push({ type: 'edit' });
     }
 
-    // ✅ Status փոփոխություն
     if (status && status !== originalStatus) {
       ticket.status = status;
       ticket.history.push({
