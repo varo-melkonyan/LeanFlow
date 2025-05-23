@@ -13,6 +13,7 @@ const TicketsPage = ({ role, setUser }) => {
   const [sortOption, setSortOption] = useState('latest');
   const [commentText, setCommentText] = useState('');
   const [commentingTicketId, setCommentingTicketId] = useState(null);
+  const apiBase = 'https://leanflow.onrender.com';
 
   const fetchTickets = async () => {
     try {
