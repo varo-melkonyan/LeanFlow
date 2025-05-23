@@ -65,55 +65,48 @@ router.post('/', async (req, res) => {
 // ✅ PUT update ticket + history
 router.put('/:id', async (req, res) => {
   try {
+    const { status, title, description, assignedToEmail } = req.body;
+
     const ticket = await Ticket.findById(req.params.id);
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
-    const { title, description, status, assignedToEmail } = req.body;
+    const originalStatus = ticket.status;
+    const originalTitle = ticket.title;
+    const originalDescription = ticket.description;
 
-    if (status && status !== ticket.status) {
-      ticket.history.push({ type: status === 'closed' ? 'complete' : 'reopen' });
-      ticket.status = status;
-    }
-
-    if (title && title !== ticket.title) {
-      ticket.history.push({ type: 'edit' });
+    if (title && title !== originalTitle) {
       ticket.title = title;
+      ticket.history.push({ type: 'edit' });
     }
 
-    if (description && description !== ticket.description) {
-      ticket.history.push({ type: 'edit' });
+    if (description && description !== originalDescription) {
       ticket.description = description;
+      ticket.history.push({ type: 'edit' });
+    }
+
+    if (status && status !== originalStatus) {
+      ticket.status = status;
+      ticket.history.push({
+        type: status === 'closed' ? 'complete' : 'reopen'
+      });
     }
 
     if (assignedToEmail) {
       const user = await User.findOne({ email: assignedToEmail });
-      if (user) {
-        if (!ticket.assignedTo || user._id.toString() !== ticket.assignedTo.toString()) {
-          ticket.history.push({ type: 'assigned' });
-          ticket.assignedTo = user._id;
-        }
-      } else {
-        return res.status(404).json({ error: 'Assigned user not found' });
-      }
+      if (!user) return res.status(404).json({ error: 'Assigned user not found' });
+      ticket.assignedTo = user._id;
     }
 
     ticket.updatedAt = new Date();
     await ticket.save();
 
-    const updated = await Ticket.findById(ticket._id)
-      .populate('createdBy', 'name email')
-      .populate('assignedTo', 'name email')
-      .populate({
-        path: 'comments',
-        populate: { path: 'author', select: 'name email' }
-      });
-
-    res.json(updated);
+    res.json(ticket);
   } catch (err) {
-    console.error('❌ Ticket update error:', err);
-    res.status(500).json({ error: 'Update failed' });
+    console.error('❌ Ticket update error:', err.message, err.stack);
+    res.status(500).json({ error: 'Update failed', details: err.message });
   }
 });
+
 
 
 // ✅ Delete ticket by ID
