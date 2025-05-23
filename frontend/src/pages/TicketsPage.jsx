@@ -41,17 +41,17 @@ const TicketsPage = ({ role, setUser }) => {
     const user = JSON.parse(localStorage.getItem('user'));
 
     await axios.post(`${apiBase}/api/tickets`, {
-      title,
-      description,
-      assignedToEmail,
-      status: 'open'
-    }, {
-      headers: {
-        'x-user-email': user.email,
-        'x-user-role': user.role
-      }
-    });
-
+  title,
+  description,
+  assignedToEmail: assignedEmail,
+  createdBy: user.id,
+  status: 'open'
+}, {
+  headers: {
+    'x-user-email': user.email,
+    'x-user-role': user.role
+  }
+});
     setTitle('');
     setDescription('');
     setAssignedEmail('');
