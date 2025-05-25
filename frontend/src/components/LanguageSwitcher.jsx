@@ -21,7 +21,6 @@ const LanguageSwitcher = () => {
       className="p-1 text-sm border rounded dark:bg-gray-800 dark:text-white"
     >
       <option value="en">EN</option>
-      <option value="ru">RU</option>
       <option value="fr">FR</option>
       <option value="de">DE</option>
     </select>

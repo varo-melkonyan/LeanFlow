@@ -17,21 +17,6 @@ const resources = {
       teams: 'Support Teams',
     },
   },
-  ru: {
-    translation: {
-      login: 'Вход',
-      register: 'Регистрация',
-      email: 'Эл. почта',
-      password: 'Пароль',
-      name: 'Имя',
-      submit: 'Отправить',
-      logout: 'Выход',
-      dashboard: 'Панель',
-      tickets: 'Заявки',
-      chats: 'Чаты',
-      teams: 'Группы поддержки',
-    },
-  },
   fr: {
     translation: {
       login: 'Connexion',

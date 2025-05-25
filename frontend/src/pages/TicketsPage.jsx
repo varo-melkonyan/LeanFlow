@@ -174,6 +174,11 @@ const handleEditSubmit = async () => {
   }
 };
 
+const [openTicketId, setOpenTicketId] = useState(null);
+
+const toggleTicketOpen = (ticketId) => {
+  setOpenTicketId(prev => (prev === ticketId ? null : ticketId));
+};
 
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -248,156 +253,71 @@ const handleEditSubmit = async () => {
           <p className="text-sm text-gray-500 dark:text-gray-400">No tickets found.</p>
         ) : (
           <div className="grid gap-4">
-  {sortedTickets.map((ticket) => (
-    <div
-      key={ticket._id}
-      className="p-4 rounded-xl bg-white dark:bg-gray-800 shadow flex flex-col gap-2 border border-gray-300 dark:border-gray-700"
-    >
-      <div className="flex justify-between items-center">
-        <h2 className="font-bold text-lg">{ticket.title || 'Untitled Ticket'}</h2>
-        <span className={`px-2 py-1 rounded text-xs font-semibold 
-          ${ticket.status === 'completed' ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
-          {ticket.status}
-        </span>
-      </div>
-
-      <p className="text-sm text-gray-600 dark:text-gray-300">{ticket.description}</p>
-
-      <div className="text-xs text-gray-500 dark:text-gray-400">
-        📤 Created by: <strong>{ticket.createdBy?.email || 'N/A'}</strong><br />
-        📥 Assigned to: <strong>{ticket.assignedTo?.email || 'Unassigned'}</strong><br />
-        🕓 Created: {new Date(ticket.createdAt).toLocaleString()}<br />
-        🔄 Updated: {new Date(ticket.updatedAt).toLocaleString()}
-      </div>
-
-      <div className="flex flex-wrap gap-2 mt-2">
-        {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
-          <>
-            <button
-              onClick={() => toggleComplete(ticket._id, ticket.status)}
-              className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
-            >
-              {ticket.status === 'completed' ? '↩️ Uncomplete' : '✅ Complete'}
-            </button>
-            <button
-              onClick={() => editTicket(ticket)}
-              className="text-xs px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
-            >
-              ✏️ Edit
-            </button>
-          </>
-        )}
-        {(role === 'admin' || role === 'support') && (
-          <button
-            onClick={() => deleteTicket(ticket._id)}
-            className="text-xs px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
-          >
-            🗑️ Delete
-          </button>
-        )}
-      </div>
-      {editingTicket && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg w-full max-w-md space-y-4">
-      <h2 className="text-xl font-semibold">✏️ Edit Ticket</h2>
-
-      <input
-        type="text"
-        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
-        value={editTitle}
-        onChange={(e) => setEditTitle(e.target.value)}
-      />
-      <textarea
-        rows={4}
-        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
-        value={editDescription}
-        onChange={(e) => setEditDescription(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Assign to (email)"
-        className="w-full p-2 border rounded dark:bg-gray-700 dark:text-white"
-        value={editAssignedEmail}
-        onChange={(e) => setEditAssignedEmail(e.target.value)}
-      />
-
-      <div className="flex justify-end gap-3 pt-2">
-        <button
-          onClick={() => setEditingTicket(null)}
-          className="text-gray-500 hover:text-red-500"
-        >
-          Cancel
-        </button>
-        <button
-          onClick={handleEditSubmit}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-        >
-          Save
-        </button>
-      </div>
+{sortedTickets.map((ticket) => (
+  <div
+    key={ticket._id}
+    onClick={() => toggleTicketOpen(ticket._id)}
+    className="cursor-pointer p-3 bg-white dark:bg-gray-800 shadow rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+  >
+    <div className="flex justify-between items-center">
+      <h2 className="font-semibold text-base">{ticket.title}</h2>
+      <p className="text-xs text-gray-500 dark:text-gray-400">
+        👤 {ticket.assignedTo?.email || 'Unassigned'}
+      </p>
     </div>
-  </div>
-)}
 
-      {ticket.comments?.length > 0 && (
-  <div className="mt-4 border-t pt-2">
-    <h3 className="text-sm font-semibold mb-1 text-gray-600 dark:text-gray-300">
-      💬 Comments:
-    </h3>
-    {ticket.comments.map((comment) => (
-      <div key={comment._id} className="mb-4">
-        <p className="text-sm">
-          <strong>{comment.author?.name || 'Unknown'}:</strong> {comment.message}
-        </p>
-        <p className="text-xs text-gray-400 dark:text-gray-500">
-          🕓 {new Date(comment.createdAt).toLocaleString()}
-        </p>
-      </div>
-    ))}
+    {openTicketId === ticket._id && (
+      <div className="mt-3 text-sm text-gray-700 dark:text-gray-300 space-y-2">
+        <p>{ticket.description}</p>
 
-    {/* ✅ Show ticket-level updatedAt and history outside comments */}
-    {ticket.updatedAt && (
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-        🔄 Updated: {new Date(ticket.updatedAt).toLocaleString()}
-      </p>
-    )}
-
-    {ticket.history?.length > 0 && (
-      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-        📜 History:
-        {ticket.history.slice(-3).map((h, idx) => (
-          <span key={idx} className="ml-1">
-            {h.type === 'edit' && '✏️'}
-            {h.type === 'complete' && '✅'}
-            {h.type === 'reopen' && '♻️'} {h.type} (
-            {new Date(h.timestamp).toLocaleTimeString()})
-          </span>
-        ))}
-      </p>
-    )}
-  </div>
-)}
-
-      {(role === 'admin' || role === 'support' || ticket.assignedTo?._id === currentUser?.id) && (
-        <div className="mt-2">
-          <textarea
-            rows={2}
-            placeholder="Write a comment..."
-            value={commentingTicketId === ticket._id ? commentText : ''}
-            onFocus={() => setCommentingTicketId(ticket._id)}
-            onChange={(e) => setCommentText(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-900 dark:text-white"
-          />
-          <button
-            className="mt-2 px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={() => submitComment(ticket._id)}
-          >
-            💬 Add Comment
-          </button>
+        <div className="text-xs text-gray-500 dark:text-gray-400">
+          📤 Created by: {ticket.createdBy?.email}<br />
+          🕓 Created: {new Date(ticket.createdAt).toLocaleString()}<br />
+          🔄 Updated: {new Date(ticket.updatedAt).toLocaleString()}
         </div>
-      )}
-    </div>
-  ))}
+
+        {/* Action buttons (edit/delete/complete) */}
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleComplete(ticket._id, ticket.status); }}
+            className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+          >
+            {ticket.status === 'closed' ? '↩️ Uncomplete' : '✅ Complete'}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); editTicket(ticket); }}
+            className="text-xs px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
+          >
+            ✏️ Edit
+          </button>
+          {(role === 'admin' || role === 'support') && (
+            <button
+              onClick={(e) => { e.stopPropagation(); deleteTicket(ticket._id); }}
+              className="text-xs px-3 py-1 rounded bg-red-600 text-white hover:bg-red-700"
+            >
+              🗑️ Delete
+            </button>
+          )}
+        </div>
+
+        {/* Comments */}
+        {ticket.comments?.length > 0 && (
+          <div className="mt-2 border-t pt-2">
+            <h3 className="text-xs font-semibold mb-1">💬 Comments</h3>
+            {ticket.comments.map((comment) => (
+              <div key={comment._id} className="mb-1">
+                <strong>{comment.author?.name || 'Unknown'}:</strong> {comment.message}
+                <div className="text-xs text-gray-400">
+                  {new Date(comment.createdAt).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+))}
 </div>
         )}
 
