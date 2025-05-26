@@ -67,26 +67,37 @@ const AdminPanel = () => {
   };
 
   const handleAddUser = async () => {
-    try {
-      if (currentUser.role === 'support' && newUser.role !== 'client') {
-        alert('Support can only create clients.');
-        return;
-      }
+  try {
+    const { name, email, password, role } = newUser;
 
-      await await fetch(`${apiBase}/api/users/create`, newUser, {
-        headers: { 'x-user-email': currentUser.email }
-      });
-
-      alert('✅ User created successfully');
-      setNewUser({ name: '', email: '', password: '', role: 'client' });
-
-      const res = await axios.get('https://leanflow.onrender.com/api/users');
-      setUsers(res.data);
-    } catch (err) {
-      console.error('User create error:', err);
-      alert(err.response?.data?.error || 'Failed to create user');
+    if (currentUser.role === 'support' && role !== 'client') {
+      alert('Support can only create clients.');
+      return;
     }
-  };
+
+    await axios.post(`${apiBase}/api/users/create`, {
+      name,
+      email,
+      password,
+      role
+    }, {
+      headers: {
+        'x-user-email': currentUser.email,
+        'x-user-role': currentUser.role
+      }
+    });
+
+    alert('✅ User created successfully');
+    setNewUser({ name: '', email: '', password: '', role: 'client' });
+
+    const res = await axios.get(`${apiBase}/api/users`);
+    setUsers(res.data);
+  } catch (err) {
+    console.error('User create error:', err);
+    alert(err.response?.data?.error || 'Failed to create user');
+  }
+};
+
 const handleDeleteUser = async (userId) => {
   try {
     await axios.delete(`https://leanflow.onrender.com/api/users/${userId}`, {
