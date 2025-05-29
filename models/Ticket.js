@@ -6,7 +6,7 @@ const TicketSchema = new mongoose.Schema({
   comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
   status: {
     type: String,
-    enum: ['open', 'in_progress', 'closed', 'completed'],
+    enum: ['open', 'in_progress', 'completed', 'completed'],
     default: 'open'
   },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

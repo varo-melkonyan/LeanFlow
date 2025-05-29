@@ -111,7 +111,7 @@ const TicketsPage = ({ role, setUser }) => {
   });
 
   const toggleComplete = async (ticketId, currentStatus) => {
-    const newStatus = currentStatus === 'closed' ? 'open' : 'closed';
+    const newStatus = currentStatus === 'completed' ? 'open' : 'completed';
     try {
       await axios.put(`${apiBase}/api/tickets/${ticketId}`, {
         status: newStatus
@@ -248,7 +248,7 @@ const TicketsPage = ({ role, setUser }) => {
                 >
                   <h2 className="font-semibold text-base flex items-center gap-2">
   {ticket.title}
-  {ticket.status === 'closed' && (
+  {ticket.status === 'completed' && (
     <span className="text-green-600 text-sm font-medium">✅ Completed</span>
   )}
 </h2>
@@ -275,7 +275,7 @@ const TicketsPage = ({ role, setUser }) => {
                         }}
                         className="text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
                       >
-                        {ticket.status === 'closed' ? '↩️ Uncomplete' : '✅ Complete'}
+                        {ticket.status === 'completed' ? '↩️ Uncomplete' : '✅ Complete'}
                       </button>
                       <button
                         onClick={(e) => {

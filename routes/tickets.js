@@ -88,7 +88,7 @@ router.put('/:id', async (req, res) => {
     if (status && status !== originalStatus) {
       ticket.status = status;
       ticket.history.push({
-        type: status === 'closed' ? 'complete' : 'reopen',
+        type: status === 'completed' ? 'complete' : 'reopen',
         timestamp: new Date()
       });
     }
